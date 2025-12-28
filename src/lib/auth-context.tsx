@@ -31,29 +31,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const url = "http://localhost:8000"
 
 
- useEffect(() => {
-  const checkMe = async () => {
-    setIsLoading(true);
-    try {
-      const response = await api.get("/auth/me");
-      if (response.data && response.status === 200) {
-        setUser(response.data);
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-        localStorage.removeItem('access_token');
-      }
-    } catch {
-      setIsAuthenticated(false);
-      setUser(null);
-      localStorage.removeItem('access_token');
-    } finally {
-      setIsLoading(false);
-    }
-  }
-  checkMe();
-}, []);
+//  useEffect(() => {
+//   const checkMe = async () => {
+//     setIsLoading(true);
+//     try {
+//       const response = await api.get("/auth/me");
+//       if (response.data && response.status === 200) {
+//         setUser(response.data);
+//         setIsAuthenticated(true);
+//       } else {
+//         setIsAuthenticated(false);
+//         setUser(null);
+//         localStorage.removeItem('access_token');
+//       }
+//     } catch {
+//       setIsAuthenticated(false);
+//       setUser(null);
+//       localStorage.removeItem('access_token');
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }
+//   checkMe();
+// }, []);
 
 
 
