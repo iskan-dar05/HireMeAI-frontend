@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Mode Colors */
+    --foreground: 0 0% 0%; /* black text */
+    --background: 0 0% 100%; /* white background */
+
+    --text-primary: 0 0% 0%; /* default text */
+    --text-secondary: 0 0% 40%; /* muted text */
+    --text-muted: 0 0% 50%; /* extra muted */
+
+    --primary: #030e21;
+    --accent: #0763f7;
+    --card-primary: #E9E9EA;
+    --card-secondary: #EBF1FC;
+  }
+
+  /* Dark mode overrides */
+  .dark {
+    --background: 222 47% 6%; /* dark background */
+    --foreground: 0 0% 97%; /* light text */
+
+    --text-primary: 0 0% 97%; /* main text */
+    --text-secondary: 0 0% 70%; /* muted text */
+    --text-muted: 0 0% 60%; /* extra muted */
+
+    --primary: #030e21;
+    --accent: #0763f7;
+    --card-primary: #1c1c1c; /* optional card color for dark */
+    --card-secondary: #2a2a2a; /* optional */
+  }
+
+  body {
+    @apply font-sans;
+    background-color: hsl(var(--background));
+    color: hsl(var(--text-primary));
+  }
+
+  p, span, a, li, h1, h2, h3, h4, h5, h6 {
+    color: hsl(var(--text-primary));
+  }
+
+  .text-secondary {
+    color: hsl(var(--text-secondary));
+  }
+
+  .text-muted {
+    color: hsl(var(--text-muted));
+  }
+
+  .shadow-custom-2xl {
+    box-shadow: 0 25px 50px -12px #EBEEF3;
+  }
+
+  .shadow-float {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  }
+
+  .rounded-custom {
+    border-radius: 30px;
+  }
+}
+
+
+@layer components{
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to{
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes shimmer {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to{
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-slide-in-up {
+    animation: slideInUp 0.6s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.5s ease-out forwards;
+  }
+}
+
