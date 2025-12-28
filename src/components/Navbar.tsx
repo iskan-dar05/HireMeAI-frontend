@@ -53,7 +53,7 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 left-0 w-full z-50 bg-card-primary/90 dark:bg-primary/90 backdrop-blur-md border-b border-card-secondary shadow-custom-2xl">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-[70px]">
+      <div className="w-full mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-[70px]">
         {/* Logo */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center rounded-custom bg-accent animate-float shadow-float">

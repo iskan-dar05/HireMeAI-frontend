@@ -1,8 +1,14 @@
 import { Hero } from '../components/Hero'
 import { Sparkles, Zap, Layout } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/lib/auth-context'
+import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 
 export default function Index() {
+
+  const { user, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
 
   const features = [
     {
@@ -21,6 +27,13 @@ export default function Index() {
       desc: "Get your resume as a PDF instantly and start applying today",
     },
   ]
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate("/dashboard", { replace: true }) // replace avoids adding "/" in history
+    }
+  }, [isAuthenticated, user, navigate])
+
 
   return (
     <div className="min-h-screen bg-background dark:bg-slate-900 text-foreground dark:text-gray-100">

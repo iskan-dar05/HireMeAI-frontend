@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { useEffect, useState } from 'react'
+import { api } from '@/axios';
 import { 
   Plus, 
   FileText, 
@@ -19,6 +21,16 @@ const MOCK_RESUMES = [
   { id: 3, name: "Marketing Specialist", template: "Creative", lastEdited: "3 days ago", views: 12, downloads: 1 },
 ];
 
+interface MockResumeType{
+  id: number
+  name: string
+  description: string
+  path: string
+  thumbnail_url: string
+  downloads: number
+
+}
+
 const STATS = [
   { label: "Total Resumes", value: "3", icon: FileText, color: "from-blue-500 to-blue-600" },
   { label: "Downloads", value: "6", icon: Download, color: "from-purple-500 to-pink-500" },
@@ -27,6 +39,24 @@ const STATS = [
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [mockResumes, setMockResumes] = useState<MockResumeType[]>([])
+  const [totalTemplates, setTotalTemplates] = useState()
+  const [totalDownloads, setTotalDownloads] = useState()
+
+
+
+  useEffect(()=>{
+    const fetchTemplates = async()=>{
+      const res = await api.get("/resume/dashboard")
+      console.log(res.data.templates)
+      setMockResumes(res.data.templates)
+      setTotalTemplates(res.data.total_templates)
+      setTotalDownloads(res.data.total_downloads)
+
+    }
+    fetchTemplates()
+  }, [])
+
 
   return (
     <div className="min-h-screen bg-background dark:bg-slate-900 text-foreground dark:text-gray-100">
@@ -52,22 +82,25 @@ export default function Dashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {STATS.map((stat, i) => {
-            const Icon = stat.icon;
-            return (
               <div
-                key={stat.label}
                 className="bg-card dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 animate-scale-in transition-smooth hover:border-accent"
-                style={{ animationDelay: `${i * 50}ms` }}
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4`}>
-                  <Icon size={24} className="text-white" />
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4`}>
+                  <FileText size={24} className="text-white" />
                 </div>
-                <p className="text-3xl font-bold text-foreground mb-1">{stat.value}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{stat.label}</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{totalTemplates}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Total Templates</p>
               </div>
-            );
-          })}
+              <div
+                className="bg-card dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 animate-scale-in transition-smooth hover:border-accent"
+              >
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4`}>
+                  <Download size={24} className="text-white" />
+                </div>
+                <p className="text-3xl font-bold text-foreground mb-1">{totalDownloads}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Total Downloads</p>
+              </div>
+
         </div>
 
         {/* Recent Resumes */}
@@ -79,25 +112,22 @@ export default function Dashboard() {
             </Button>
           </div>
 
-          {MOCK_RESUMES.length > 0 ? (
+          {mockResumes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {MOCK_RESUMES.map((resume, index) => (
+              {mockResumes.map((resume, index) => (
                 <div
                   key={resume.id}
                   className="group bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl overflow-hidden hover:border-accent/50 transition-smooth hover:shadow-xl animate-scale-in cursor-pointer"
                   style={{ animationDelay: `${(index + 4) * 50}ms` }}
-                  onClick={() => navigate(`/create?resume=${resume.id}`)}
+                  onClick={() => navigate(`/resume-preview/${encodeURIComponent(resume.path)}`)}
                 >
                   {/* Resume Preview */}
                   <div className="h-40 bg-gray-100 dark:bg-gray-700/30 relative">
-                    <div className="absolute inset-4 bg-card dark:bg-slate-900 rounded-lg shadow-md p-3 transform group-hover:scale-105 transition-smooth">
-                      <div className="h-2 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-2" />
-                      <div className="h-1.5 bg-gray-300/50 dark:bg-gray-500/50 rounded w-3/4 mb-1" />
-                      <div className="h-1.5 bg-gray-300/50 dark:bg-gray-500/50 rounded w-full mb-3" />
-                      <div className="border-t border-border dark:border-gray-700 pt-2 space-y-1">
-                        <div className="h-1 bg-gray-300/30 dark:bg-gray-500/30 rounded w-full" />
-                        <div className="h-1 bg-gray-300/30 dark:bg-gray-500/30 rounded w-5/6" />
-                      </div>
+                    <div className="absolute inset-4 bg-card dark:bg-slate-900 rounded-lg shadow-md transform group-hover:scale-105 transition-smooth overflow-hidden">
+                      <img
+                        src={`http://127.0.0.1:8000/static/${resume.thumbnail}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     
                     {/* Quick actions overlay */}
@@ -126,11 +156,11 @@ export default function Dashboard() {
                     <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mt-4">
                       <span className="flex items-center gap-1">
                         <Clock size={14} />
-                        {resume.lastEdited}
+                        
                       </span>
                       <span className="flex items-center gap-1">
                         <Eye size={14} />
-                        {resume.views}
+                        
                       </span>
                       <span className="flex items-center gap-1">
                         <Download size={14} />
