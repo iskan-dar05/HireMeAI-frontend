@@ -125,7 +125,7 @@ export default function Dashboard() {
                   <div className="h-40 bg-gray-100 dark:bg-gray-700/30 relative">
                     <div className="absolute inset-4 bg-card dark:bg-slate-900 rounded-lg shadow-md transform group-hover:scale-105 transition-smooth overflow-hidden">
                       <img
-                        src={`http://127.0.0.1:8000/static/${resume.thumbnail}`}
+                        src={`https://hiremeai-backend.onrender.com/static/${resume.thumbnail}`}
                         className="w-full h-full object-cover"
                       />
                     </div>

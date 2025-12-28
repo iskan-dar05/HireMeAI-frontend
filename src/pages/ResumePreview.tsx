@@ -15,7 +15,7 @@ export default function ResumePreview() {
 
     const fetchPdf = async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/resume/view-resume/${encodeURIComponent(pdfPath)}`, {
+        const res = await fetch(`https://hiremeai-backend.onrender.com/resume/view-resume/${encodeURIComponent(pdfPath)}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

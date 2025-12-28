@@ -59,7 +59,7 @@ export default function Templates() {
                   <div className="relative h-56 overflow-hidden">
                     <img
                       key={template.id}
-                      src={`http://127.0.0.1:8000/static/${template.thumbnail_url}`}
+                      src={`https://hiremeai-backend.onrender.com/static/${template.thumbnail_url}`}
                       alt={template.name}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
