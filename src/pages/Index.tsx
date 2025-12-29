@@ -28,11 +28,11 @@ export default function Index() {
     },
   ]
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      navigate("/dashboard", { replace: true }) // replace avoids adding "/" in history
-    }
-  }, [isAuthenticated, user, navigate])
+  // useEffect(() => {
+  //   if (isAuthenticated && user) {
+  //     navigate("/dashboard", { replace: true }) // replace avoids adding "/" in history
+  //   }
+  // }, [isAuthenticated, user, navigate])
 
 
   return (
