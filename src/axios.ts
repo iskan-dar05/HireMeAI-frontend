@@ -1,10 +1,8 @@
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react"
-// const API_URL = "https://hiremeai-backend.onrender.com/";
-
-const API_URL = "http://127.0.0.1:8000";
 
 
+const API_URL = import.meta.env.VITE_API_URL
 
 export const useAxios = () => {
   const { getToken } = useAuth()
