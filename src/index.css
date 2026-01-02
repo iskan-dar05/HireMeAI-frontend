@@ -48,6 +48,10 @@
     color: hsl(var(--text-primary));
   }
 
+  .cl-internal-1dauvpw {
+  display: none !important;
+}
+
   .text-secondary {
     color: hsl(var(--text-secondary));
   }

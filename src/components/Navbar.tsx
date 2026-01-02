@@ -31,19 +31,21 @@ export function Navbar() {
     const authButtons = !isSignedIn ? (
     <>
       {!onSignInPage && (
-        <SignInButton mode="redirect">
-          <Button className="bg-primary text-white hover:scale-105 transition-all shadow-float">
-            Sign In
-          </Button>
-        </SignInButton>
+        <Button
+          onClick={() => navigate("/signin")}
+          className="bg-primary text-white hover:scale-105 transition-all shadow-float"
+        >
+          Sign In
+        </Button>
       )}
 
       {!onSignUpPage && (
-        <SignUpButton mode="redirect">
-          <Button className="bg-accent text-white hover:scale-105 transition-all shadow-float">
-            Sign Up
-          </Button>
-        </SignUpButton>
+        <Button
+        onClick={() => navigate("/signup")}
+        className="bg-accent text-white hover:scale-105 transition-all shadow-float"
+      >
+        Sign Up
+      </Button>
       )}
     </>
   ) : (

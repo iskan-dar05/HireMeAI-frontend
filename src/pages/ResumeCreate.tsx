@@ -66,7 +66,6 @@ export default function CreateResume() {
 
   const [activeSection, setActiveSection] = useState("personal");
 
-  // Responsive scaling
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) setScale(0.5);
@@ -86,17 +85,33 @@ export default function CreateResume() {
   const removeEducation = (id: string) => setEducation(education.filter(edu => edu.id !== id));
   const updateEducation = (id: string, field: keyof Education, value: string) => setEducation(education.map(edu => edu.id === id ? { ...edu, [field]: value } : edu));
 
-  const generateAISummary = () => {
-    const hasExperienceData = experiences.some(exp=>exp.position.trim() || exp.description.trim());
-    const hasSkills = skills.trim().length > 0;
-    if(!hasSkills && !hasExperienceData) {
-      setShowAiHelp(true);
-      return;
-    }
-    setShowAiHelp(false);
-    setIsGenerating(true);
-    setSummary("Results-driven professional with experience in modern technologies and problem-solving. Skilled in delivering reliable solutions and collaborating with teams to achieve business goals.");
-    setIsGenerating(false);
+  const generateAISummary = async () => {
+      const hasExperienceData = experiences.some(
+          exp=>exp.position.trim() || exp.description.trim()
+          );
+      const skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean)
+
+      if(!hasExperienceData && skillsArray.length == 0)
+      {
+        setShowAiHelp(true)
+        return;
+      }
+      try{
+        setShowAiHelp(false)
+        setIsGenerating(true)
+
+        const res = await api.post("/resume/generate-summary", {
+          experiences: hasExperienceData ? experiences : [],
+          skills: skillsArray
+        })
+        setSummary(res.data.summary);
+      }catch(error)
+      {
+        console.error(error);
+      }finally{
+        setIsGenerating(false)
+      }
+
   };
 
   const resumeData = {
@@ -107,7 +122,7 @@ export default function CreateResume() {
   const createResume = async () => {
     try {
       setIsGenerating(true);
-      const response = await api.post("/resume/create-resume", resumeData);
+      const response = await api.post("/resume/generate-resume", resumeData);
       setGeneratedPdfPath(response.data.file);
       console.log("GENERATED PDF PATH::::", generatedPdfPath)
       setPreviewMode("pdf");
@@ -152,8 +167,8 @@ export default function CreateResume() {
           </div>
 
           <div className="flex flex-wrap gap-2 justify-end">
-            <Button variant={resumeMode==="manual"?"default":"outline"} onClick={()=>setResumeMode("manual")} className={resumeMode==="manual"?"text-white":"text-black"}><User size={16}/> Manual</Button>
-            <Button variant={resumeMode==="ai"?"default":"outline"} onClick={()=>setResumeMode("ai")} className={resumeMode==="ai"?"text-white":"text-black"}><Sparkles size={16}/> Use AI</Button>
+            <Button variant={resumeMode==="manual"?"default":"outline"} onClick={()=>setResumeMode("manual")} className="text-white"><User size={16}/> Manual</Button>
+            <Button variant={resumeMode==="ai"?"default":"outline"} onClick={()=>setResumeMode("ai")} className="text-white"><Sparkles size={16}/> Use AI</Button>
             <Button disabled={!generatedPdfPath} onClick={()=>generatedPdfPath && navigate(`/resume-preview/${encodeURIComponent(generatedPdfPath)}`)} variant="outline" className="gap-2"><Eye size={18}/> Preview</Button>
             <Button variant="outline" className="gap-2"><Save size={18}/> Save Draft</Button>
             <Button className="bg-accent text-white gap-2"><Download size={18}/> Download PDF</Button>

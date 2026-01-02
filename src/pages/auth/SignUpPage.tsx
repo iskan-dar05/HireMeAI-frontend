@@ -1,10 +1,37 @@
+import { useContext, useEffect, useState } from "react";
 import { SignUp } from "@clerk/clerk-react";
+import { dark, light } from "@clerk/themes";
+import { ThemeContext } from "@/lib/theme-context";
 
 const SignUpPage = () => {
+  const { theme } = useContext(ThemeContext); // reactive theme
+  const [clerkTheme, setClerkTheme] = useState(light);
+
+  useEffect(() => {
+    setClerkTheme(theme === "dark" ? dark : light);
+  }, [theme]);
+
   return (
-    <div style={{ maxWidth: 400, margin: "auto", padding: 20 }}>
-      <h1>Sign Up</h1>
-      <SignUp path="/signup" routing="path" signInUrl="/signin" />
+    <div className="min-h-[calc(100vh-100px)] flex items-center justify-center bg-card-primary dark:bg-card-secondary">
+      <div className="w-2/4 flex items-center flex-col rounded-2xl shadow-custom-2xl animate-slide-in-up p-6">
+        {/* Logo */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 flex items-center justify-center rounded-custom bg-accent shadow-float">
+            <span className="text-white font-bold text-lg">H</span>
+          </div>
+          <span className="font-bold text-lg bg-accent bg-clip-text text-transparent">
+            HireMeAI
+          </span>
+        </div>
+
+        {/* Clerk SignUp */}
+        <SignUp
+          path="/signup"
+          routing="path"
+          signInUrl="/signin"
+          appearance={{ theme: clerkTheme }}
+        />
+      </div>
     </div>
   );
 };
