@@ -167,8 +167,8 @@ export default function CreateResume() {
           </div>
 
           <div className="flex flex-wrap gap-2 justify-end">
-            <Button variant={resumeMode==="manual"?"default":"outline"} onClick={()=>setResumeMode("manual")} className="text-white"><User size={16}/> Manual</Button>
-            <Button variant={resumeMode==="ai"?"default":"outline"} onClick={()=>setResumeMode("ai")} className="text-white"><Sparkles size={16}/> Use AI</Button>
+            <Button className={resumeMode==="manual"?"text-white":"dark:text-white"} variant={resumeMode==="manual"?"default":"outline"} onClick={()=>setResumeMode("manual")}><User size={16}/> Manual</Button>
+            <Button className={resumeMode==="ai"?"text-white":"dark:text-white"} variant={resumeMode==="ai"?"default":"outline"} onClick={()=>setResumeMode("ai")}><Sparkles size={16}/> Use AI</Button>
             <Button disabled={!generatedPdfPath} onClick={()=>generatedPdfPath && navigate(`/resume-preview/${encodeURIComponent(generatedPdfPath)}`)} variant="outline" className="gap-2"><Eye size={18}/> Preview</Button>
             <Button variant="outline" className="gap-2"><Save size={18}/> Save Draft</Button>
             <Button className="bg-accent text-white gap-2"><Download size={18}/> Download PDF</Button>
