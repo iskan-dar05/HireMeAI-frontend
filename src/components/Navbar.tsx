@@ -2,12 +2,20 @@ import { Moon, Sun, Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '@/lib/theme-context';
-import { useAuth } from '@/lib/auth-context';
 import { useContext, useState } from 'react';
+import {
+  useAuth,
+  useUser,
+  SignInButton,
+  SignUpButton,
+  UserButton
+} from "@clerk/clerk-react";
+
 
 export function Navbar() {
   const { theme, toggleTheme } = useContext(ThemeContext);
-  const { isAuthenticated, user, signOut } = useAuth();
+  const { isSignedIn, signOut } = useAuth();
+  const { user } = useUser();
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,37 +28,34 @@ export function Navbar() {
     navigate('/signin');
   };
 
-  const authButtons = !user ? (
+    const authButtons = !isSignedIn ? (
     <>
       {!onSignInPage && (
-        <Link to="/signin">
-          <Button className="bg-card-secondary dark:bg-primary text-accent hover:bg-accent hover:text-white transition-all shadow-float">
+        <SignInButton mode="redirect">
+          <Button className="bg-primary text-white hover:scale-105 transition-all shadow-float">
             Sign In
           </Button>
-        </Link>
+        </SignInButton>
       )}
+
       {!onSignUpPage && (
-        <Link to="/signup">
-          <Button className="bg-accent text-white rounded-custom shadow-float hover:scale-105 transition-transform">
+        <SignUpButton mode="redirect">
+          <Button className="bg-accent text-white hover:scale-105 transition-all shadow-float">
             Sign Up
           </Button>
-        </Link>
+        </SignUpButton>
       )}
     </>
   ) : (
-    <div className="flex items-center gap-4 text-foreground dark:text-foreground">
-      <span className="bg-card-secondary dark:bg-primary px-3 py-1 rounded-full shadow-float">{user.email}</span>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleSignOut}
-        className="border-accent text-accent hover:bg-accent hover:text-white transition-all"
-      >
-        Sign Out
-      </Button>
+    <div className="flex items-center gap-4">
+      <span className="bg-card-secondary px-3 py-1 rounded-full shadow-float text-sm">
+        {user?.primaryEmailAddress?.emailAddress}
+      </span>
+
+      {/* Clerk built-in user menu (logout, profile, etc.) */}
+      <UserButton afterSignOutUrl="/signin" />
     </div>
   );
-
   return (
     <nav className="sticky top-0 left-0 w-full z-50 bg-card-primary/90 dark:bg-primary/90 backdrop-blur-md border-b border-card-secondary shadow-custom-2xl">
       <div className="w-full mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-[70px]">

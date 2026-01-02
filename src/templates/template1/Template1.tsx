@@ -1,4 +1,6 @@
 import React from "react";
+import './style.css'
+
 
 interface TemplateProps {
   data: any;
@@ -9,12 +11,22 @@ const Template1: React.FC<TemplateProps> = ({ data = {} }) => {
     ? data.experiences
     : [
         {
-          position: "Frontend Developer",
-          company: "Tech Company",
-          startDate: "2022",
+          position: "Senior Software Engineer",
+          company: "Tech Solutions Inc.",
+          startDate: "2020",
           endDate: "Present",
-          description:
-            "Developed modern web applications using React and collaborated with cross-functional teams.",
+          description: `Led development of microservices architecture serving 2M+ daily users
+Mentored team of 5 junior developers, improving code quality by 40%
+Implemented CI/CD pipelines reducing deployment time by 60%`,
+        },
+        {
+          position: "Software Engineer",
+          company: "Digital Innovations Co.",
+          startDate: "2016",
+          endDate: "2020",
+          description: `Developed RESTful APIs handling 500K+ requests daily
+Built responsive web applications using React and Node.js
+Optimized database queries improving performance by 50%`,
         },
       ];
 
@@ -22,32 +34,40 @@ const Template1: React.FC<TemplateProps> = ({ data = {} }) => {
     ? data.education
     : [
         {
-          degree: "Bachelor of Computer Science",
-          school: "University Name",
-          graduationDate: "2021",
+          degree: "Bachelor of Science in Computer Science",
+          school: "University of California, Berkeley",
+          graduationDate: "2012 - 2016",
         },
       ];
 
   const skills = data.skills
     ? data.skills.split(",")
-    : ["JavaScript", "React", "HTML", "CSS"];
+    : [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "Node.js",
+        "Python",
+        "PostgreSQL",
+        "AWS",
+        "Docker",
+        "Git",
+        "Agile",
+      ];
 
   return (
     <div className="resume">
       {/* HEADER */}
       <header className="header">
         <div className="name-title">
-          <h1>{data.fullName || "John Doe"}</h1>
-          <p className="title">
-            {experiences[0]?.position || "Your Position"}
-          </p>
+          <h1>{data.fullname || "Jhon Anderson"}</h1>
+          <p className="title">{data.profession || experiences[0]?.position || "Senior Software Engineer"}</p>
         </div>
-
         <div className="contact">
-          <p>{data.email || "john.doe@email.com"}</p>
+          <p>{data.email || "john.anderson@email.com"}</p>
           <p>{data.phone || "+1 (555) 123-4567"}</p>
-          <p>{data.location || "City, Country"}</p>
-          <p>{data.linkedin || "linkedin.com/in/johndoe"}</p>
+          <p>{data.location || "San Francisco, CA"}</p>
+          <p>{data.linkedin || "linkedin.com/in/johnanderson"}</p>
         </div>
       </header>
 
@@ -56,7 +76,7 @@ const Template1: React.FC<TemplateProps> = ({ data = {} }) => {
         <h2>Professional Summary</h2>
         <p>
           {data.summary ||
-            "Results-driven professional with experience in building scalable applications and delivering high-quality solutions."}
+            "Results-driven software engineer with 8+ years of experience in full-stack development. Specialized in building scalable web applications using modern technologies. Proven track record of leading teams and delivering high-impact projects on time."}
         </p>
       </section>
 
@@ -67,19 +87,15 @@ const Template1: React.FC<TemplateProps> = ({ data = {} }) => {
           <div className="job" key={idx}>
             <div className="job-header">
               <div>
-                <h3>{job.position || "Job Title"}</h3>
+                <h3>{job.position || "Position Title"}</h3>
                 <p className="company">{job.company || "Company Name"}</p>
               </div>
-              <p className="date">
-                {job.startDate || "Start"} – {job.endDate || "End"}
-              </p>
+              <p className="date">{job.startDate} - {job.endDate}</p>
             </div>
-
             <ul>
-              <li>
-                {job.description ||
-                  "Worked on key features, improved performance, and collaborated with the team."}
-              </li>
+              {job.description
+                .split("\n")
+                .map((desc: string, i: number) => <li key={i}>{desc}</li>)}
             </ul>
           </div>
         ))}
@@ -95,9 +111,7 @@ const Template1: React.FC<TemplateProps> = ({ data = {} }) => {
                 <h3>{edu.degree || "Degree Title"}</h3>
                 <p className="school">{edu.school || "University Name"}</p>
               </div>
-              <p className="date">
-                {edu.graduationDate || "Graduation Year"}
-              </p>
+              <p className="date">{edu.graduationDate || "Graduation Year"}</p>
             </div>
           </div>
         ))}

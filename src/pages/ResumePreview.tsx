@@ -1,107 +1,131 @@
 import { useParams } from "react-router-dom";
-import { Download, Printer } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { Download, Printer, Loader2, AlertCircle } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { Document, Page, pdfjs } from "react-pdf";
+
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
+
 
 export default function ResumePreview() {
   const { pdfPath } = useParams<{ pdfPath: string }>();
-  const token = localStorage.getItem("access_token"); // get your auth token
+  const { getToken } = useAuth();
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null); // لحساب عدد الصفحات
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
+  const fetchPdf = useCallback(async () => {
+    if (!pdfPath) return;
+
+    setIsLoading(true);
+    setHasError(false);
+
+    try {
+      const token = await getToken({ template: "backend" });
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/resume/view-resume/${encodeURIComponent(pdfPath)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch PDF");
+
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      setPdfBlobUrl(blobUrl);
+    } catch (err) {
+      console.error("Error fetching PDF:", err);
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [pdfPath, getToken]);
+
   useEffect(() => {
-    if (!pdfPath || !token) return;
-
-    const fetchPdf = async () => {
-      try {
-        const res = await fetch(`https://hiremeai-backend.onrender.com/resume/view-resume/${encodeURIComponent(pdfPath)}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch PDF");
-
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        setPdfBlobUrl(blobUrl);
-      } catch (err) {
-        console.error(err);
-        setHasError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchPdf();
-
-    // cleanup URL object when component unmounts
     return () => {
       if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
     };
-  }, [pdfPath, token]);
+  }, [fetchPdf]);
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
 
   const handleDownload = () => {
     if (!pdfBlobUrl) return;
     const link = document.createElement("a");
     link.href = pdfBlobUrl;
-    link.download = pdfPath.split("/").pop();
+    link.download = pdfPath?.split("/").pop() || "resume.pdf";
     link.click();
   };
 
   const handlePrint = () => {
     if (!pdfBlobUrl) return;
-    const newWindow = window.open(pdfBlobUrl, "_blank");
-    newWindow?.focus();
+    const printWindow = window.open(pdfBlobUrl, "_blank");
+    printWindow?.print();
   };
 
   return (
     <div className="max-w-5xl mx-auto py-6 px-4">
-      {/* HEADER */}
-      <div className="sticky top-0 z-10 flex items-center justify-between mb-4 bg-card border border-border rounded-xl p-4 shadow-sm">
+      {/* Header Section */}
+      <div className="sticky top-0 z-20 flex items-center justify-between mb-4 bg-background   backdrop-blur border border-border rounded-xl p-4 shadow-sm">
         <div>
           <h2 className="font-semibold text-lg">Resume Preview</h2>
-          <p className="text-sm text-muted-foreground">{pdfPath.split("/").pop()}</p>
+          <p className="text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-xs">
+            {pdfPath?.split("/").pop()}
+          </p>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white hover:opacity-90 transition"
-          >
+        <div className="flex gap-2">
+          <button onClick={handleDownload} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">
             <Download size={16} />
-            Download
+            <span className="hidden sm:inline text-white">Download</span>
           </button>
-
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted/10 transition"
-          >
+          <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition shadow-sm">
             <Printer size={16} />
-            Print
+            <span className="hidden sm:inline">Print</span>
           </button>
         </div>
       </div>
 
-      {/* PDF VIEW */}
-      <div className="w-full h-[85vh] sm:h-[75vh] md:h-[85vh] border border-border rounded-xl overflow-hidden bg-white shadow-sm relative">
+      <div className="w-full h-[80vh] border border-border rounded-xl overflow-y-auto bg-gray-100 shadow-inner flex flex-col items-center p-4">
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
-            <span className="text-muted-foreground">Loading PDF...</span>
+          <div className="flex flex-col items-center justify-center h-full gap-2">
+            <Loader2 className="animate-spin text-blue-500" />
+            <span className="text-muted-foreground text-sm font-medium">Preparing Document...</span>
           </div>
         )}
+
         {hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-red-100 text-red-600 z-10">
-            Failed to load PDF.
+          <div className="flex flex-col items-center justify-center h-full gap-2 text-red-500">
+            <AlertCircle size={32} />
+            <span className="font-medium">Failed to load PDF preview.</span>
           </div>
         )}
+
         {pdfBlobUrl && (
-          <iframe
-            src={pdfBlobUrl}
-            title="Resume Preview"
-            className="w-full h-full"
-          />
+          <Document
+            file={pdfBlobUrl}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={null}
+            className="flex flex-col items-center gap-4"
+          >
+            {Array.from(new Array(numPages), (_, index) => (
+              <div key={`page_${index + 1}`} className="shadow-lg border border-gray-200">
+                <Page 
+                  pageNumber={index + 1} 
+                  renderTextLayer={false} 
+                  renderAnnotationLayer={false}
+                  scale={1.2}
+                  width={Math.min(window.innerWidth - 60, 800)}
+                />
+              </div>
+            ))}
+          </Document>
         )}
       </div>
     </div>

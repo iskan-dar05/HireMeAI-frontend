@@ -1,13 +1,14 @@
 import { Hero } from '../components/Hero'
 import { Sparkles, Zap, Layout } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/lib/auth-context'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import { useAuth, useUser } from '@clerk/clerk-react'
 
 export default function Index() {
 
-  const { user, isAuthenticated } = useAuth()
+  const { isSignedIn, isLoaded } = useAuth()
+  const { user } = useUser()
   const navigate = useNavigate()
 
   const features = [
@@ -28,13 +29,14 @@ export default function Index() {
     },
   ]
 
-  // useEffect(() => {
-  //   if (isAuthenticated && user) {
-  //     navigate("/dashboard", { replace: true }) // replace avoids adding "/" in history
-  //   }
-  // }, [isAuthenticated, user, navigate])
+  if (!isLoaded) return null
 
-
+  if (isSignedIn && user) 
+  {
+    navigate("/dashboard", { replace: true })
+    return null
+  }
+ 
   return (
     <div className="min-h-screen bg-background dark:bg-slate-900 text-foreground dark:text-gray-100">
       <Hero />
@@ -78,5 +80,5 @@ export default function Index() {
         </div>
       </section>
     </div>
-  )
+  )  
 }

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth-context";
 import { templates } from '@/templates';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { api } from '@/axios';
+import { useAxios } from '@/axios';
 import { 
   Save, Download, Sparkles, User, Briefcase, GraduationCap, Code,
   Plus, Trash2, ChevronLeft, Eye, Wand2, FileText
@@ -33,8 +33,13 @@ type ResumeMode = "manual" | "ai";
 
 export default function CreateResume() {
   const navigate = useNavigate();
-  const { templateId } = useParams<{ templateId: string }>();
+  const routerLocation = useLocation();
+  const api = useAxios()
+  const queryParams = new URLSearchParams(routerLocation)
+  const templateId = queryParams.get("template") || "1"
   const Template = templates[templateId];
+
+  console.log("TEMPLATE_ID:::::::::::", templateId)
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -104,11 +109,12 @@ export default function CreateResume() {
       setIsGenerating(true);
       const response = await api.post("/resume/create-resume", resumeData);
       setGeneratedPdfPath(response.data.file);
+      console.log("GENERATED PDF PATH::::", generatedPdfPath)
       setPreviewMode("pdf");
     } catch (error) { console.error(error); } 
     finally { setIsGenerating(false); }
   };
-
+  
   const fillTestData = () => {
     setFullName("John Doe");
     setEmail("john.doe@email.com");
@@ -154,9 +160,9 @@ export default function CreateResume() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Form Section */}
-          <div className="xl:col-span-2 space-y-6">
+          <div className="space-y-6">
             {/* Section Navigation */}
             <div className="flex gap-2 overflow-x-auto pb-2">
               {sections.map(sec=>{
@@ -188,7 +194,7 @@ export default function CreateResume() {
                 <div className="space-y-2">
                   <Popover open={showAiHelp} onOpenChange={setShowAiHelp}>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="sm" onClick={generateAISummary} disabled={isGenerating} className="text-accent gap-1"><Wand2 size={16}/> Generate with AI</Button>
+                      <Button variant="ghost" size="sm" onClick={generateAISummary} disabled={isGenerating} className="text-accent gap-1 hover:text-white"><Wand2 size={16}/> Generate with AI</Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-72 p-4">
                       <h4 className="font-semibold mb-1">AI needs more info</h4>
@@ -252,25 +258,34 @@ export default function CreateResume() {
           </div>
 
           {/* Preview Section */}
-          <div className="xl:col-span-1 hidden xl:block sticky top-24 overflow-auto max-h-[80vh]">
-            <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-4 mb-4">
-              <h3 className="font-semibold text-foreground mb-2">Live Preview</h3>
-              <p className="text-sm text-muted-foreground">See your resume as you build it</p>
-            </div>
+          <div className="xl:block sticky top-24 overflow-auto max-h-[80vh] w-full">
+    <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-4 mb-4">
+      <h3 className="font-semibold text-foreground mb-2">Live Preview</h3>
+      <p className="text-sm text-muted-foreground">See your resume as you build it</p>
+    </div>
 
-            <div className="preview-scroll max-w-full overflow-auto">
-              <div className="preview-paper bg-white dark:bg-gray-900 origin-top-left" style={{ width: 794, transform: `scale(${scale})` }}>
-                {previewMode==="template" && <Template data={resumeData} />}
-                {previewMode==="pdf" && generatedPdfPath && (
-                  <iframe
-                    src={`http://127.0.0.1:8000/resume/view-resume/${encodeURIComponent(generatedPdfPath)}`}
-                    className="w-full h-[75vh] rounded-xl border"
-                    title="Resume PDF Preview"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
+    <div className="flex justify-center overflow-auto h-[80%]">
+      <div
+        className="preview-paper bg-white dark:bg-gray-900 rounded-xl border shadow-lg"
+        style={{
+          width: "794px",
+          height: "100%",
+          maxWidth: "100%", // <-- never exceed container width
+          zoom: window.innerWidth < 640 ? 0.5 : window.innerWidth < 1024 ? 0.8 : 0.8,
+          transformOrigin: "top left",
+        }}
+      >
+        {previewMode === "template" && <Template data={resumeData} />}
+        {previewMode === "pdf" && generatedPdfPath && (
+          <iframe
+            src={`http://127.0.0.1:8000/resume/view-resume/${encodeURIComponent(generatedPdfPath)}`}
+            className="w-full h-[75vh] rounded-xl border"
+            title="Resume PDF Preview"
+          />
+        )}
+      </div>
+    </div>
+  </div>
         </div>
       </main>
     </div>

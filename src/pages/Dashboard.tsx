@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/auth-context";
 import { useEffect, useState } from 'react'
-import { api } from '@/axios';
+import { useAuth, useUser } from "@clerk/clerk-react"
+import { useAxios } from '@/axios';
 import { 
   Plus, 
   FileText, 
@@ -36,25 +36,61 @@ const STATS = [
   { label: "Downloads", value: "6", icon: Download, color: "from-purple-500 to-pink-500" },
 ];
 
+
+function ResumeSkeleton() {
+  return (
+    <div className="animate-pulse bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl overflow-hidden">
+      {/* Preview area */}
+      <div className="h-40 bg-gray-200 dark:bg-gray-700/30 relative" />
+
+      {/* Info area */}
+      <div className="p-5 space-y-3">
+        <div className="h-5 w-3/4 bg-gray-200 dark:bg-slate-700 rounded" />
+        <div className="h-4 w-1/2 bg-gray-200 dark:bg-slate-700 rounded" />
+        <div className="flex gap-3 mt-4">
+          <div className="h-4 w-10 bg-gray-200 dark:bg-slate-700 rounded" />
+          <div className="h-4 w-10 bg-gray-200 dark:bg-slate-700 rounded" />
+          <div className="h-4 w-10 bg-gray-200 dark:bg-slate-700 rounded" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+
+
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user } = useUser()
+  const api = useAxios()
   const navigate = useNavigate();
   const [mockResumes, setMockResumes] = useState<MockResumeType[]>([])
   const [totalTemplates, setTotalTemplates] = useState()
   const [totalDownloads, setTotalDownloads] = useState()
+  const [isLoading, setIsLoading] = useState(false)
 
 
 
   useEffect(()=>{
     const fetchTemplates = async()=>{
-      const res = await api.get("/resume/dashboard")
+      setIsLoading(true)
+
+      try{
+       const res = await api.get("/resume/dashboard")
       console.log(res.data.templates)
       setMockResumes(res.data.templates)
       setTotalTemplates(res.data.total_templates)
-      setTotalDownloads(res.data.total_downloads)
-
+      setTotalDownloads(res.data.total_downloads) 
+    } catch(error)
+    {
+      console.error(error)
+    }finally{
+      setIsLoading(false)
     }
+    
+  }
     fetchTemplates()
+    
   }, [])
 
 
@@ -66,7 +102,7 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-12 animate-slide-in-up">
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
-              Welcome back, {user?.name || "User"}!
+              Welcome back, {user?.firstname || "User"}!
             </h1>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
               Manage your resumes and create new ones with AI assistance
@@ -125,7 +161,7 @@ export default function Dashboard() {
                   <div className="h-40 bg-gray-100 dark:bg-gray-700/30 relative">
                     <div className="absolute inset-4 bg-card dark:bg-slate-900 rounded-lg shadow-md transform group-hover:scale-105 transition-smooth overflow-hidden">
                       <img
-                        src={`https://hiremeai-backend.onrender.com/static/${resume.thumbnail}`}
+                        src={`${import.meta.env.VITE_API_URL}/static/${resume.thumbnail}`}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -184,6 +220,12 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-600 dark:text-gray-300">Choose from 10+ templates</p>
               </Link>
             </div>
+          ) : isLoading ?(
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ResumeSkeleton key={i} />
+              ))}
+            </div>
           ) : (
             <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-12 text-center">
               <div className="w-20 h-20 rounded-2xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center mx-auto mb-6">
@@ -194,7 +236,7 @@ export default function Dashboard() {
                 Start building your professional resume with our AI-powered tools and beautiful templates
               </p>
               <Link to="/templates">
-                <Button className="btn-gradient gap-2">
+                <Button className="btn-gradient bg-accent text-white gap-2">
                   <Plus size={20} />
                   Create Your First Resume
                 </Button>
