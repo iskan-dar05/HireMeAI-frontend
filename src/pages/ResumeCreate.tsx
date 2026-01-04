@@ -3,10 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/lib/auth-context";
 import { templates } from '@/templates';
+import { useAuth } from "@clerk/clerk-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAxios } from '@/axios';
+import Preview from '@/components/Preview'
 import { 
   Save, Download, Sparkles, User, Briefcase, GraduationCap, Code,
   Plus, Trash2, ChevronLeft, Eye, Wand2, FileText
@@ -55,6 +56,12 @@ export default function CreateResume() {
   const [generatedPdfPath, setGeneratedPdfPath] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const { getToken } = useAuth();
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null);
+
 
   const [experiences, setExperiences] = useState<Experience[]>([
     { id: "1", company: "", position: "", startDate: "", endDate: "", description: "" }
@@ -76,6 +83,38 @@ export default function CreateResume() {
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(()=>{
+    if(generatedPdfPath){
+      const fetchPdf = async ()=>{
+        setIsLoading(true)
+        setHasError(false)
+        try {
+          const token = await getToken({ template: "backend" });
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/resume/view-resume/${encodeURIComponent(generatedPdfPath)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!res.ok) throw new Error("Failed to fetch PDF");
+
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          setPdfBlobUrl(blobUrl);
+        } catch (err) {
+          console.error("Error fetching PDF:", err);
+          setHasError(true);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+      fetchPdf();
+    }
+  }, [generatedPdfPath, getToken])
+
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+  };
 
   const addExperience = () => setExperiences([...experiences, { id: Date.now().toString(), company: "", position: "", startDate: "", endDate: "", description: "" }]);
   const removeExperience = (id: string) => setExperiences(experiences.filter(exp => exp.id !== id));
@@ -152,7 +191,7 @@ export default function CreateResume() {
   ];
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gradient-to-b dark:from-slate-950 dark:to-slate-900">
+    <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
@@ -161,7 +200,7 @@ export default function CreateResume() {
               <ChevronLeft size={24} />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Create Resume</h1>
+              <h1 className="text-2xl dark:text-white font-bold text-foreground">Create Resume</h1>
               <p className="text-sm text-muted-foreground">Template #{templateId}</p>
             </div>
           </div>
@@ -169,9 +208,8 @@ export default function CreateResume() {
           <div className="flex flex-wrap gap-2 justify-end">
             <Button className={resumeMode==="manual"?"text-white":"dark:text-white"} variant={resumeMode==="manual"?"default":"outline"} onClick={()=>setResumeMode("manual")}><User size={16}/> Manual</Button>
             <Button className={resumeMode==="ai"?"text-white":"dark:text-white"} variant={resumeMode==="ai"?"default":"outline"} onClick={()=>setResumeMode("ai")}><Sparkles size={16}/> Use AI</Button>
-            <Button disabled={!generatedPdfPath} onClick={()=>generatedPdfPath && navigate(`/resume-preview/${encodeURIComponent(generatedPdfPath)}`)} variant="outline" className="gap-2"><Eye size={18}/> Preview</Button>
-            <Button variant="outline" className="gap-2"><Save size={18}/> Save Draft</Button>
-            <Button className="bg-accent text-white gap-2"><Download size={18}/> Download PDF</Button>
+            <Button disabled={!generatedPdfPath} onClick={()=>generatedPdfPath && navigate(`/resume-preview/${encodeURIComponent(generatedPdfPath)}`)} variant="outline" className="bg-card-primary gap-2 dark:text-white"><Eye size={18}/> Preview</Button>
+            <Button className="bg-gradient-to-r from-primary to-accent text-white gap-2 dark:hover:scale-105 transition-all"><Download size={18}/> Download PDF</Button>
           </div>
         </div>
 
@@ -185,7 +223,7 @@ export default function CreateResume() {
                 return (
                   <button key={sec.id} onClick={()=>setActiveSection(sec.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-smooth ${
-                      activeSection===sec.id ? "bg-accent text-white":"bg-card border border-border dark:border-gray-700 hover:border-accent/50 dark:bg-slate-800"
+                      activeSection===sec.id ? "bg-primary text-white":"bg-card-primary border border-border dark:text-white"
                     }`}>
                     <Icon size={18}/>{sec.label}
                   </button>
@@ -195,15 +233,15 @@ export default function CreateResume() {
 
             {/* Sections */}
             {activeSection==="personal" && (
-              <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-6 space-y-6">
-                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><User size={20} className="text-accent"/> Personal Information</h2>
+              <div className="bg-card-primary border border-border dark:border-gray-700 rounded-2xl p-6 space-y-6">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2"><User size={20} className="text-accent"/> Personal Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input placeholder="Full Name" value={fullName} onChange={e=>setFullName(e.target.value)} className="h-11"/>
-                  <Input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="h-11"/>
-                  <Input placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} className="h-11"/>
-                  <Input placeholder="Location" value={location} onChange={e=>setLocation(e.target.value)} className="h-11"/>
-                  <Input placeholder="LinkedIn URL" value={linkedin} onChange={e=>setLinkedin(e.target.value)} className="h-11 md:col-span-2"/>
-                  <Input placeholder="Profession" value={profession} onChange={e=>setProfession(e.target.value)} className="h-11"/>
+                  <Input placeholder="Full Name" value={fullName} onChange={e=>setFullName(e.target.value)} className="dark:text-white h-11"/>
+                  <Input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="dark:text-white h-11"/>
+                  <Input placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} className="dark:text-white h-11"/>
+                  <Input placeholder="Location" value={location} onChange={e=>setLocation(e.target.value)} className="dark:text-white h-11"/>
+                  <Input placeholder="LinkedIn URL" value={linkedin} onChange={e=>setLinkedin(e.target.value)} className="dark:text-white h-11 md:col-span-2"/>
+                  <Input placeholder="Profession" value={profession} onChange={e=>setProfession(e.target.value)} className="dark:text-white h-11"/>
                 </div>
                 {resumeMode==='ai' && <Textarea placeholder="Job Description" value={jobDescription} onChange={e=>setJobDescription(e.target.value)} rows={4} className="resize-none"/>}
                 <div className="space-y-2">
@@ -216,17 +254,17 @@ export default function CreateResume() {
                       <p className="text-sm text-muted-foreground">Add at least one skill or work experience for AI to generate a summary.</p>
                     </PopoverContent>
                   </Popover>
-                  <Textarea placeholder="Professional summary..." value={summary} onChange={e=>setSummary(e.target.value)} rows={4} className="resize-none"/>
+                  <Textarea placeholder="Professional summary..." value={summary} onChange={e=>setSummary(e.target.value)} rows={4} className="dark:text-white resize-none"/>
                 </div>
               </div>
             )}
 
             {/* Experience Section */}
             {activeSection==="experience" && (
-              <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-6 space-y-4">
-                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><Briefcase size={20} className="text-accent"/> Experience</h2>
+              <div className="bg-card-primary border border-border dark:border-gray-700 rounded-2xl p-6 space-y-4">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2"><Briefcase size={20} className="text-accent"/> Experience</h2>
                 {experiences.map(exp=>(
-                  <div key={exp.id} className="space-y-2 border-b border-border pb-2 last:border-b-0">
+                  <div key={exp.id} className="dark:text-white space-y-2 border-b border-border pb-2 last:border-b-0">
                     <Input placeholder="Company" value={exp.company} onChange={e=>updateExperience(exp.id,'company',e.target.value)}/>
                     <Input placeholder="Position" value={exp.position} onChange={e=>updateExperience(exp.id,'position',e.target.value)}/>
                     <div className="grid grid-cols-2 gap-2">
@@ -237,14 +275,14 @@ export default function CreateResume() {
                     <Button variant="destructive" size="sm" className="gap-2" onClick={()=>removeExperience(exp.id)}><Trash2 size={16}/> Remove</Button>
                   </div>
                 ))}
-                <Button size="sm" className="gap-2" onClick={addExperience}><Plus size={16}/> Add Experience</Button>
+                <Button size="sm" className="text-white gap-2" onClick={addExperience}><Plus size={16}/> Add Experience</Button>
               </div>
             )}
 
             {/* Education Section */}
             {activeSection==="education" && (
-              <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-6 space-y-4">
-                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><GraduationCap size={20} className="text-accent"/> Education</h2>
+              <div className="bg-card-primary dark:text-white border border-border dark:border-gray-700 rounded-2xl p-6 space-y-4">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2"><GraduationCap size={20} className="text-accent"/> Education</h2>
                 {education.map(edu=>(
                   <div key={edu.id} className="space-y-2 border-b border-border pb-2 last:border-b-0">
                     <Input placeholder="School" value={edu.school} onChange={e=>updateEducation(edu.id,'school',e.target.value)}/>
@@ -254,28 +292,28 @@ export default function CreateResume() {
                     <Button variant="destructive" size="sm" className="gap-2" onClick={()=>removeEducation(edu.id)}><Trash2 size={16}/> Remove</Button>
                   </div>
                 ))}
-                <Button size="sm" className="gap-2" onClick={addEducation}><Plus size={16}/> Add Education</Button>
+                <Button size="sm" className="text-white gap-2" onClick={addEducation}><Plus size={16}/> Add Education</Button>
               </div>
             )}
 
             {/* Skills Section */}
             {activeSection==="skills" && (
-              <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-6">
-                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><Code size={20} className="text-accent"/> Skills</h2>
+              <div className="bg-card-primary dark:text-white border border-border dark:border-gray-700 rounded-2xl p-6">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2"><Code size={20} className="text-accent"/> Skills</h2>
                 <Textarea placeholder="Enter skills separated by commas" value={skills} onChange={e=>setSkills(e.target.value)} rows={4}/>
               </div>
             )}
 
             <div className="flex gap-2 mt-4 flex-wrap">
-              <Button className="bg-accent text-white gap-2" disabled={isGenerating} onClick={createResume}><FileText size={18}/> Create Resume</Button>
-              <Button variant="outline" onClick={fillTestData} className="gap-2">🧪 Fill Test Data</Button>
+              <Button className="bg-primary text-white gap-2" disabled={isGenerating} onClick={createResume}><FileText size={18}/> Create Resume</Button>
+              <Button variant="outline" onClick={fillTestData} className="gap-2 dark:text-white">🧪 Fill Test Data</Button>
             </div>
           </div>
 
           {/* Preview Section */}
           <div className="xl:block sticky top-24 overflow-auto max-h-[80vh] w-full">
-    <div className="bg-card dark:bg-slate-800 border border-border dark:border-gray-700 rounded-2xl p-4 mb-4">
-      <h3 className="font-semibold text-foreground mb-2">Live Preview</h3>
+    <div className="bg-card-primary border border-border dark:border-gray-700 rounded-2xl p-4 mb-4">
+      <h3 className="font-semibold dark:text-white mb-2">Live Preview</h3>
       <p className="text-sm text-muted-foreground">See your resume as you build it</p>
     </div>
 
@@ -292,10 +330,12 @@ export default function CreateResume() {
       >
         {previewMode === "template" && <Template data={resumeData} />}
         {previewMode === "pdf" && generatedPdfPath && (
-          <iframe
-            src={`http://127.0.0.1:8000/resume/view-resume/${encodeURIComponent(generatedPdfPath)}`}
-            className="w-full h-[75vh] rounded-xl border"
-            title="Resume PDF Preview"
+          <Preview
+            isLoading={isLoading}
+            hasError={hasError}
+            pdfBlobUrl={pdfBlobUrl}
+            numPages={numPages}
+            onDocumentLoadSuccess={onDocumentLoadSuccess}
           />
         )}
       </div>

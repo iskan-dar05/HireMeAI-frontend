@@ -33,7 +33,7 @@ export function Navbar() {
       {!onSignInPage && (
         <Button
           onClick={() => navigate("/signin")}
-          className="bg-primary text-white hover:scale-105 transition-all shadow-float"
+          className="text-gray-900 !font-normal bg-background hover:bg-accent dark:text-white dark:hover:bg-primary hover:scale-105 transition-all shadow-float"
         >
           Sign In
         </Button>
@@ -42,15 +42,15 @@ export function Navbar() {
       {!onSignUpPage && (
         <Button
         onClick={() => navigate("/signup")}
-        className="bg-accent text-white hover:scale-105 transition-all shadow-float"
+        className="bg-gradient-to-r from-primary to-accent !font-normal text-white dark:text-gray-900 hover:scale-105 transition-all shadow-lg"
       >
-        Sign Up
+        Get Started
       </Button>
       )}
     </>
   ) : (
     <div className="flex items-center gap-4">
-      <span className="bg-card-secondary px-3 py-1 rounded-full shadow-float text-sm">
+      <span className="bg-card-secondary dark:bg-card-primary px-3 py-1 rounded-full shadow-float text-sm">
         {user?.primaryEmailAddress?.emailAddress}
       </span>
 
@@ -59,26 +59,26 @@ export function Navbar() {
     </div>
   );
   return (
-    <nav className="sticky top-0 left-0 w-full z-50 bg-card-primary/90 dark:bg-primary/90 backdrop-blur-md border-b border-card-secondary shadow-custom-2xl">
+    <nav className="sticky top-0 left-0 w-full z-50 bg-background dark:bg-primary/90 backdrop-blur-md dark:border-dark border-light">
       <div className="w-full mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-[70px]">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 flex items-center justify-center rounded-custom bg-accent animate-float shadow-float">
-            <span className="text-white font-bold text-lg">H</span>
+          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary animate-float shadow-float">
+            <span className="dark:text-gray-900 text-white font-bold text-lg">H</span>
           </div>
-          <span className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <span className="font-bold text-xl bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
             HireMeAI
           </span>
         </div>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-4">
-          <Button
+          <button
             onClick={toggleTheme}
-            className="flex items-center justify-center gap-2 bg-card-secondary dark:bg-primary text-foreground dark:text-foreground hover:bg-accent hover:text-white shadow-float transition-all"
+            className="dark:text-white dark:hover:bg-card-primary p-2 rounded-lg hover:bg-slate-100"
           >
             {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-          </Button>
+          </button>
 
           {authButtons}
         </div>

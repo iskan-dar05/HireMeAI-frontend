@@ -21,13 +21,13 @@ export function Hero() {
 
         <div className="flex gap-5 items-center mt-5 flex-wrap justify-center md:justify-start">
           <Link to="#">
-            <Button className="text-white bg-gradient-to-r from-primary to-accent text-xl px-3 py-6 tracking-tight flex items-center">
+            <Button className="dark:text-gray-900 hover:shadow-lg text-gray-200 !font-normal bg-gradient-to-r from-primary to-accent dark:from-accent dark:to-primary text-xl px-3 py-6 tracking-tight flex items-center">
               Get Started Free
               <Sparkles className="ml-2" size={20} />
             </Button>
           </Link>
           <Link to="#">
-            <Button className="border-[2px] text-xl bg-white/50 tracking-tight px-10 py-6 border-gray-200">
+            <Button className="border-[2px] text-xl bg-background tracking-tight px-10 py-6 border-gray-200 hover:bg-gray-100">
               Sign In
             </Button>
           </Link>
@@ -35,14 +35,14 @@ export function Hero() {
       </div>
 
       {/* Right Column */}
-      <div className="justify-self-center md:justify-self-end w-full max-w-md">
-        <div className="flex flex-col gap-4 p-[50px] border border-gray-200 shadow-custom-2xl rounded-custom animate-scale-in">
-          <div className="w-3/4 animate-shimmer h-4 bg-gray-100 rounded-md"></div>
-          <div className="w-full animate-shimmer h-4 bg-gray-100 rounded-md"></div>
-          <div className="w-5/6 animate-shimmer h-4 bg-gray-100 rounded-md"></div>
-          <div className="pt-6 space-y-3 border-t border-border">
-            <div className="w-3/4 animate-shimmer h-4 bg-gray-100 rounded-md"></div>
-            <div className="w-full animate-shimmer h-4 bg-gray-100 rounded-md"></div>
+      <div className="justify-self-center md:justify-self-end w-full">
+        <div className="flex flex-col bg-card-primary gap-4 p-[50px] dark:shadow-dark shadow-light rounded-3xl animate-scale-in overflow-hidden">
+          <div className="w-3/4 animate-shimmer h-4 bg-gradient-to-b dark:from-primary dark:to-accent from-gray-200 to-gray-100 rounded-md"></div>
+          <div className="w-full animate-shimmer h-4 bg-gradient-to-b dark:from-primary dark:to-accent from-gray-200 to-gray-100 rounded-md"></div>
+          <div className="w-5/6 animate-shimmer h-4 bg-gradient-to-b dark:from-primary dark:to-accent from-gray-200 to-gray-100 rounded-md"></div>
+          <div className="pt-6 space-y-3 border-t dark:border-gray-800 border-gray-100">
+            <div className="w-3/4 animate-shimmer h-4 bg-gradient-to-b dark:from-primary dark:to-accent from-gray-200 to-gray-100 rounded-md"></div>
+            <div className="w-full animate-shimmer h-4 bg-gradient-to-b dark:from-primary dark:to-accent from-gray-200 to-gray-100 rounded-md"></div>
           </div>
         </div>
       </div>

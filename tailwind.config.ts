@@ -22,11 +22,8 @@ export default {
 		        'card-primary': 'var(--card-primary)',
         		'card-secondary': 'var(--card-secondary)',
 		      },
-			fontFamiliy: {
+			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
-			},
-			boxShadow: {
-				'custom-2xl': '0 25px 50px -12px #EBEEF3'
 			},
 		},
 	},

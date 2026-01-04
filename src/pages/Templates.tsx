@@ -65,12 +65,12 @@ export default function Templates() {
   };
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gradient-to-b dark:from-slate-950 dark:to-slate-900">
+    <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-16 animate-slide-in-up">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-foreground">Choose Your Template</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 dark:text-gray-100">Choose Your Template</h1>
+          <p className="text-lg text-gray-500 max-w-2xl">
             Select a professionally designed template to get started with your resume. All templates are ATS-friendly
             and ready to customize.
           </p>
@@ -94,7 +94,7 @@ export default function Templates() {
                 onMouseEnter={() => setHoveredTemplate(template.id)}
                 onMouseLeave={() => setHoveredTemplate(null)}
               >
-                <div className="border border-border bg-gray-100 dark:bg-slate-800 rounded-2xl overflow-hidden hover:border-accent/50 transition-smooth hover:shadow-xl flex flex-col h-full relative">
+                <div className="border border-border bg-card-primary rounded-2xl overflow-hidden hover:border-accent/50 transition-smooth hover:shadow-xl flex flex-col h-full relative">
                   {/* Template Preview */}
                   <div className="relative h-56 overflow-hidden">
                     <img
@@ -117,8 +117,8 @@ export default function Templates() {
 
                   {/* Template Info */}
                   <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-lg font-semibold text-foreground mb-2">{template.name}</h3>
-                    <p className="text-muted-foreground text-sm flex-1">{template.description}</p>
+                    <h3 className="text-lg font-semibold dark:text-gray-100 mb-2">{template.name}</h3>
+                    <p className="dark:text-gray-400 text-sm flex-1">{template.description}</p>
 
                     <Button className="w-full mt-4 bg-gradient-to-r from-primary to-accent text-white transition-transform duration-300 group-hover:scale-105">
                       Use Template

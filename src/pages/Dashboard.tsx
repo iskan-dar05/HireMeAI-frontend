@@ -95,7 +95,7 @@ export default function Dashboard() {
 
 
   return (
-    <div className="min-h-screen bg-background dark:bg-slate-900 text-foreground dark:text-gray-100">
+    <div className="min-h-screen bg-background text-foreground dark:text-gray-100">
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
@@ -109,7 +109,7 @@ export default function Dashboard() {
             </p>
           </div>
           <Link to="/templates" className="mt-4 sm:mt-0">
-            <Button className="bg-accent text-white gap-2 text-lg px-6 py-5">
+            <Button className="bg-primary hover:scale-105 transition-all text-white gap-2 text-lg px-6 py-5">
               <Plus size={20} />
               Create New Resume
             </Button>
