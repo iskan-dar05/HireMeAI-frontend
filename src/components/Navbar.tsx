@@ -1,4 +1,4 @@
-import { Moon, Sun, Menu, X } from 'lucide-react';
+import { Moon, Sun, Menu, X, LayoutDashboard } from 'lucide-react';
 import { Button } from './ui/button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeContext } from '@/lib/theme-context';
@@ -50,6 +50,14 @@ export function Navbar() {
     </>
   ) : (
     <div className="flex items-center gap-4">
+      {location.pathname !== '/dashboard' && (
+        <Button
+        className="text-gray-900 !font-normal bg-background hover:bg-accent dark:text-white dark:hover:bg-primary hover:scale-105 transition-all shadow-float"
+        onClick={()=>navigate('/dashboard', {replace: true})}>
+          Dashbaord
+          <LayoutDashboard className="h-6 w-6" />
+        </Button>
+      )}
       <span className="bg-card-secondary dark:bg-card-primary px-3 py-1 rounded-full shadow-float text-sm">
         {user?.primaryEmailAddress?.emailAddress}
       </span>
@@ -62,6 +70,7 @@ export function Navbar() {
     <nav className="sticky top-0 left-0 w-full z-50 bg-background dark:bg-primary/90 backdrop-blur-md dark:border-dark border-light">
       <div className="w-full mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-[70px]">
         {/* Logo */}
+        <Link to="/">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-accent to-primary animate-float shadow-float">
             <span className="dark:text-gray-900 text-white font-bold text-lg">H</span>
@@ -70,6 +79,7 @@ export function Navbar() {
             HireMeAI
           </span>
         </div>
+      </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-4">
